@@ -31,35 +31,67 @@ describe('app routes', () => {
       return client.end(done);
     });
 
-    test('returns animals', async() => {
+    const todos = {
+      'id': 3,
+      'task': 'TEST',
+      'completed': false,
+      'user_id': 2 
+    };
 
-      const expectation = [
-        {
-          'id': 1,
-          'name': 'bessie',
-          'coolfactor': 3,
-          'owner_id': 1
-        },
-        {
-          'id': 2,
-          'name': 'jumpy',
-          'coolfactor': 4,
-          'owner_id': 1
-        },
-        {
-          'id': 3,
-          'name': 'spot',
-          'coolfactor': 10,
-          'owner_id': 1
-        }
-      ];
+    const dbTodos = {
+      ...todos,
+      user_id: 2 };
 
+    test('create a todos', async() => {
+
+      const todos = 
+          {
+            'todos': 'TEST',
+            'completed': false,
+            'userId': 1,
+          };
+  
       const data = await fakeRequest(app)
-        .get('/animals')
+        .post('/api/todos')
+        .send(todos)
+        .set('Authorization', token)
         .expect('Content-Type', /json/)
         .expect(200);
-
-      expect(data.body).toEqual(expectation);
+  
+      expect(data.text).toEqual(dbTodos);
     });
+  
+  
+  
+    test('returns todo for one user', async() => {
+  
+      const data = await fakeRequest(app)
+        .get('/api/todo')
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+  
+      expect(data.body).toEqual([dbTodo]);
+    });
+  
+    test.only('returns todo for one user with an ID', async() => {
+  
+      const data = await fakeRequest(app)
+        .get('/api/todos/3')
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+      console.log(data.body);
+      expect(data.text).toEqual(dbTodos);
+      const nothing = await fakeRequest(app)
+        .get('/api/todos/1')
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+  
+      expect(nothing.text).toEqual('');
+    });
+  
+  
   });
 });

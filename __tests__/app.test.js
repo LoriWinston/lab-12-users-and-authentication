@@ -32,7 +32,7 @@ describe('app routes', () => {
     });
 
     const todos = {
-      'id': 3,
+      'id': 4,
       'task': 'TEST',
       'completed': false,
       'user_id': 2 
@@ -46,7 +46,7 @@ describe('app routes', () => {
 
       const todos = 
           {
-            'todos': 'TEST',
+            'task': 'TEST',
             'completed': false,
             'userId': 1,
           };
@@ -58,7 +58,7 @@ describe('app routes', () => {
         .expect('Content-Type', /json/)
         .expect(200);
   
-      expect(data.text).toEqual(dbTodos);
+      expect(data.body).toEqual(dbTodos);
     });
   
   
@@ -66,30 +66,55 @@ describe('app routes', () => {
     test('returns todo for one user', async() => {
   
       const data = await fakeRequest(app)
-        .get('/api/todo')
+        .get('/api/todos')
         .set('Authorization', token)
         .expect('Content-Type', /json/)
         .expect(200);
   
-      expect(data.body).toEqual([dbTodo]);
+      expect(data.body).toEqual([dbTodos]);
     });
   
-    test.only('returns todo for one user with an ID', async() => {
+    test('returns todo for one user with an ID', async() => {
   
       const data = await fakeRequest(app)
-        .get('/api/todos/3')
+        .get('/api/todos/4')
         .set('Authorization', token)
         .expect('Content-Type', /json/)
         .expect(200);
       console.log(data.body);
-      expect(data.text).toEqual(dbTodos);
+      expect(data.body).toEqual(dbTodos);
       const nothing = await fakeRequest(app)
         .get('/api/todos/1')
         .set('Authorization', token)
         .expect('Content-Type', /json/)
         .expect(200);
   
-      expect(nothing.text).toEqual('');
+      expect(nothing.body).toEqual('');
+    });
+
+    
+    test('updates todos 4', async() => {
+
+      const updatedTodo = 
+          {
+            'task': 'TEST',
+            'completed': true,
+            'user_id': 2,
+          };
+      const updatedDbTodos = {
+        ...updatedTodo,
+        user_id: 2,
+        'id': 4
+      };
+  
+      const data = await fakeRequest(app)
+        .put('/api/todos/4')
+        .send(updatedTodo)
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+  
+      expect(data.body).toEqual(updatedDbTodos);
     });
   
   
